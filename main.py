@@ -15,7 +15,7 @@ def take_picture():
     os.system('sudo service motion stop')
     time.sleep(2)
     print('Taking screenshot')
-    os.system('fswebcam -r 640x480 --no-banner -d /dev/video0 -D 1 image-test2.jpg')
+    os.system('fswebcam -r 640x480 --no-banner -d /dev/video0 -i 0 -D 1 image-test2.jpg')
     time.sleep(1)
     init()
     
@@ -54,11 +54,17 @@ def analyze_cube():
 
     for x in pix_x:
         for y in pix_y:
-            if abs(pixels[x, y][0] - pixels[x, y][1]) < WHT_BD and abs(pixels[x, y][1] - pixels[x, y][2]) < WHT_BD and abs(pixels[x, y][0] - pixels[x, y][2]) < WHT_BD:
-                print('(', x, ', ', y, ')', ':', pixels[x, y], 'WHITE')
+            avg_red = (pixels[x - 2, y - 2][0] + pixels[x - 1, y - 1][0] + pixels[x, y][0] + pixels[x + 1, y + 1][0] + pixels[x + 2, y + 2][0]) / 5
+            avg_green = (pixels[x - 2, y - 2][1] + pixels[x - 1, y - 1][1] + pixels[x, y][1] + pixels[x + 1, y + 1][1] + pixels[x + 2, y + 2][1]) / 5
+            avg_blue = (pixels[x - 2, y - 2][2] + pixels[x - 1, y - 1][2] + pixels[x, y][2] + pixels[x + 1, y + 1][2] + pixels[x + 2, y + 2][2]) / 5
+
+            avg_pix = (avg_red, avg_green, avg_blue)
+            
+            if abs(avg_pix[0] - avg_pix[1]) < WHT_BD and abs(avg_pix[1] - avg_pix[2]) < WHT_BD and abs(avg_pix[0] - avg_pix[2]) < WHT_BD:
+                print('(', x, ', ', y, ')', ':', avg_pix, 'WHITE')
                 cube.append(2)
             else:
-                hue = rgb_to_hue(pixels[x, y])
+                hue = rgb_to_hue(avg_pix)
                 if hue < 20: # RED 0 - 15
                     cube.append(1)
                 elif hue < 35: # ORANGE
@@ -69,7 +75,7 @@ def analyze_cube():
                     cube.append(6)
                 else: # BLUE
                     cube.append(4)
-                print('(', x, ', ', y, ')', ':', pixels[x, y], rgb_to_hue(pixels[x, y]))
+                print('(', x, ', ', y, ')', ':', avg_pix, rgb_to_hue(avg_pix))
 
     print(cube)
     return cube
@@ -79,7 +85,7 @@ def play_cube(cube):
     root = cube[4]
 
     tonic = 220.0
-    tonic = tonic * (2 ** (-7/12))
+    tonic = tonic * (2 ** (-5/12))
     
     pattern = []
     
@@ -147,10 +153,13 @@ def play_cube(cube):
 if __name__ == '__main__':
     
     init()
-    while True:
+    run = True
+    while run:
         i = input('Take picutre? [y/n] ')
         if i == 'y':
             take_picture()
-        else:
             play_cube(analyze_cube())
+        else:
+            run = False
+            
 
