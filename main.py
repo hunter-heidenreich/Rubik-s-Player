@@ -57,7 +57,7 @@ def analyze_cube():
     # Constant cube settings
     pix_x = [110, 300, 480] # The x pixel locations
     pix_y = [80, 280, 440]  # The y pixel locations
-    WHT_BD = 15             # The maximum difference between RGB for a white color
+    WHT_BD = 25             # The maximum difference between RGB for a white color
 
     # Loads the images into the program
     img = Image.open('rubiks.jpg')
