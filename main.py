@@ -1,6 +1,7 @@
 import os
 import time
 from PIL import Image
+import pyaudio
 
 
 def init():
@@ -40,14 +41,6 @@ def rgb_to_hue(rgb):
 
 def analyze_cube():
 
-    colors = {
-        'BLUE': (0, 0, 0),      #175 - 185
-        'GREEN': (0, 0, 0),     #100 - 115
-        'ORANGE': (0, 0, 0),    # 24 -  35
-        'RED': (180, 30, 10),   #  2 - 21
-        'WHITE': (0, 0, 0),     
-        'YELLOW': (0, 0, 0)     # 46 - 56
-    }
     img = Image.open('image-test2.jpg')
     pixels = img.load()
 
@@ -56,12 +49,60 @@ def analyze_cube():
 
     WHT_BD = 15
 
+    cube = []
+
     for x in pix_x:
         for y in pix_y:
             if abs(pixels[x, y][0] - pixels[x, y][1]) < WHT_BD and abs(pixels[x, y][1] - pixels[x, y][2]) < WHT_BD and abs(pixels[x, y][0] - pixels[x, y][2]) < WHT_BD:
-                print('WHITE')
+                print('(', x, ', ', y, ')', ':', pixels[x, y], 'WHITE')
+                cube.append(2)
             else:
+                hue = rgb_to_hue(pixels[x, y])
+                if hue < 20: # RED 0 - 15
+                    cube.append(1)
+                elif hue < 35: # ORANGE
+                    cube.append(5)
+                elif hue < 60: # YELLOW
+                    cube.append(3)
+                elif hue < 115: # GREEN
+                    cube.append(6)
+                else: # BLUE
+                    cube.append(4)
                 print('(', x, ', ', y, ')', ':', pixels[x, y], rgb_to_hue(pixels[x, y]))
+
+    print(cube)
+    return cube
+
+
+def play_cube(cube):
+    root = cube[4]
+
+    PyAudio = pyaudio.PyAudio
+    BITRATE = 16000
+    FREQUENCY = 261.63
+    LENGTH = 1.2232
+
+    NUMBEROFFRAMES = int(BITRATE * LENGTH)
+    RESTFRAMES = NUMBEROFFRAMES % BITRATE
+    WAVEDATA = ''    
+
+    for x in xrange(NUMBEROFFRAMES):
+        WAVEDATA = WAVEDATA+chr(int(math.sin(x/((BITRATE/FREQUENCY)/math.pi))*127+128))    
+
+    #fill remainder of frameset with silence
+    for x in xrange(RESTFRAMES): 
+        WAVEDATA = WAVEDATA+chr(128)
+
+    p = PyAudio()
+    stream = p.open(format = p.get_format_from_width(1), 
+                    channels = 1, 
+                    rate = BITRATE, 
+                    output = True)
+    stream.write(WAVEDATA)
+    stream.stop_stream()
+    stream.close()
+    p.terminate()
+    
 
 
 if __name__ == '__main__':
@@ -72,5 +113,5 @@ if __name__ == '__main__':
         if i == 'y':
             take_picture()
         else:
-            analyze_cube()
+            play_cube(analyze_cube())
 
