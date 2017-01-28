@@ -71,7 +71,7 @@ def analyze_cube():
         for y in pix_y:
 
             # Samples the pixels around the selected to get an average color
-            pixel_sampling = 7
+            pixel_sampling = 5
             avg_c = [0, 0, 0]
             for i in range(pixel_sampling):
                 avg_c[0] += pixels[x - i - (pixel_sampling // 2), y - i - (pixel_sampling // 2)][0]
@@ -190,8 +190,10 @@ if __name__ == '__main__':
         i = input('Take picutre? [y/n] ')
         if i == 'y':
             take_picture()
+            cube = analyze_cube()
+            i = input('Play audio? [y/n] ')
             while i == 'y':
-                play_cube(analyze_cube())
+                play_cube(cube)
                 i = input('Play again? [y/n] ')
         else:
             run = False
