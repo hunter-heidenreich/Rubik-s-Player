@@ -71,7 +71,7 @@ def analyze_cube():
         for y in pix_y:
 
             # Samples the pixels around the selected to get an average color
-            pixel_sampling = 5
+            pixel_sampling = 7
             avg_c = [0, 0, 0]
             for i in range(pixel_sampling):
                 avg_c[0] += pixels[x - i - (pixel_sampling // 2), y - i - (pixel_sampling // 2)][0]
@@ -89,7 +89,7 @@ def analyze_cube():
                 cube.append(2)
             else: # Else, analyze the hue
                 hue = rgb_to_hue(avg_pix)
-                if hue < 20:                # RED
+                if hue < 22:                # RED
                     cube.append(1)
                 elif hue < 35:              # ORANGE
                     cube.append(5)
