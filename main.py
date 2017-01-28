@@ -41,9 +41,9 @@ def rgb_to_hue(rgb):
 def analyze_cube():
 
     colors = {
-        'BLUE': (0, 0, 0),      #160 - 170
-        'GREEN': (0, 0, 0),     # 95 - 105
-        'ORANGE': (0, 0, 0),    # 15 - 42
+        'BLUE': (0, 0, 0),      #175 - 185
+        'GREEN': (0, 0, 0),     #100 - 115
+        'ORANGE': (0, 0, 0),    # 24 -  35
         'RED': (180, 30, 10),   #  2 - 21
         'WHITE': (0, 0, 0),     
         'YELLOW': (0, 0, 0)     # 46 - 56
@@ -51,8 +51,8 @@ def analyze_cube():
     img = Image.open('image-test2.jpg')
     pixels = img.load()
 
-    pix_x = [200, 360, 560]
-    pix_y = [100, 260, 420]
+    pix_x = [110, 300, 480]
+    pix_y = [80, 280, 440]
 
     WHT_BD = 15
 
@@ -60,28 +60,8 @@ def analyze_cube():
         for y in pix_y:
             if abs(pixels[x, y][0] - pixels[x, y][1]) < WHT_BD and abs(pixels[x, y][1] - pixels[x, y][2]) < WHT_BD and abs(pixels[x, y][0] - pixels[x, y][2]) < WHT_BD:
                 print('WHITE')
-            print('(', x, ', ', y, ')', ':', pixels[x, y], rgb_to_hue(pixels[x, y]))
-            
-    
-'''
-    dim = 100
-    
-    for ix in range(img.size[1]):
-        for i in range(img.size[0]):
-            if pixels[i, ix][0] >= colors['GREEN'][0] and pixels[i, ix][1] < colors['GREEN'][2] and pixels[i, ix][2] < colors['GREEN'][2]:
-               # i += dim // 2
-               # ix += dim // 2
-                print(pixels[i, ix])
-                print(i, ix)
-                for x in range(3):
-                    for y in range(3):
-                        print(pixels[i + dim * x + dim // 2, ix + dim * y + dim // 2])
-                img.crop((i, ix, i + dim * 3, ix + dim * 3)).save('sight2.jpg', 'JPEG')
-                #img.crop((0, 0, 100, 300)).save('sight2.jpg', 'JPEG')
-                return None
-            #print(pixels[i, ix])
-'''
-
+            else:
+                print('(', x, ', ', y, ')', ':', pixels[x, y], rgb_to_hue(pixels[x, y]))
 
 
 if __name__ == '__main__':
