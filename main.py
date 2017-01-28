@@ -190,6 +190,8 @@ if __name__ == '__main__':
         i = input('Take picutre? [y/n] ')
         if i == 'y':
             take_picture()
-            play_cube(analyze_cube())
+            while i == 'y':
+                play_cube(analyze_cube())
+                i = input('Play again? [y/n] ')
         else:
             run = False
