@@ -1,5 +1,6 @@
 import os
 import time
+import math
 from PIL import Image
 import pyaudio
 
@@ -77,21 +78,59 @@ def analyze_cube():
 def play_cube(cube):
     root = cube[4]
 
+    tonic = 220.0
+    tonic = tonic * (2 ** (-7/12))
+    
+    pattern = []
+    
+    if root == 1:
+        pattern = [0, 4, 7]
+    elif root == 2:
+        pattern = [2, 5, 9]
+    elif root == 3:
+        pattern = [4, 7, 11]
+    elif root == 4:
+        pattern = [5, 9, 12]
+    elif root == 5:
+        pattern = [7, 11, 14]
+    else:
+        pattern = [9, 12, 16]
+
+    melody = []
+    
+    for i in range(3):
+        for p in range(len(pattern)):
+            diff = root - cube[i * 3 + p]
+            note = tonic * (2 ** (((i * 12) + pattern[p] + diff) / 12))
+            melody.append(note)
+            if p == 2:
+                melody.append(note)
+
+    print(melody)
+
+    # This fixes the melody getting cut off. [DON'T TOUCH]
+    
+    melody.append(22)
+    melody.append(22)
+    melody.append(22)
+    melody.append(22)
+    melody.append(22)
+    melody.append(22)
+    melody.append(22)
+    melody.append(22)
+
+    # End of melody fix
+
     PyAudio = pyaudio.PyAudio
     BITRATE = 16000
-    FREQUENCY = 261.63
-    LENGTH = 1.2232
+    LENGTH = 0.5
 
     NUMBEROFFRAMES = int(BITRATE * LENGTH)
-    RESTFRAMES = NUMBEROFFRAMES % BITRATE
     WAVEDATA = ''    
 
-    for x in xrange(NUMBEROFFRAMES):
-        WAVEDATA = WAVEDATA+chr(int(math.sin(x/((BITRATE/FREQUENCY)/math.pi))*127+128))    
-
-    #fill remainder of frameset with silence
-    for x in xrange(RESTFRAMES): 
-        WAVEDATA = WAVEDATA+chr(128)
+    for f in melody:
+        for x in range(NUMBEROFFRAMES):
+            WAVEDATA = WAVEDATA+chr(int(math.sin(x/((BITRATE/f)/math.pi))*127+128))    
 
     p = PyAudio()
     stream = p.open(format = p.get_format_from_width(1), 
