@@ -66,72 +66,79 @@ def analyze_cube():
     # Creates cube
     cube = []
 
-    # Loops over cube values
+    # Loops over selected pixel locations
     for x in pix_x:
         for y in pix_y:
 
+            # Samples the pixels around the selected to get an average color
             pixel_sampling = 5
             avg_c = [0, 0, 0]
-
             for i in range(pixel_sampling):
                 avg_c[0] += pixels[x - i - (pixel_sampling // 2), y - i - (pixel_sampling // 2)][0]
                 avg_c[1] += pixels[x - i - (pixel_sampling // 2), y - i - (pixel_sampling // 2)][1]
                 avg_c[2] += pixels[x - i - (pixel_sampling // 2), y - i - (pixel_sampling // 2)][2]
-
             avg_c[0] /= pixel_sampling
             avg_c[1] /= pixel_sampling
             avg_c[2] /= pixel_sampling
-
             avg_pix = (avg_c[0], avg_c[1], avg_c[2])
 
+            # Analyzes the average color
+            # If the RGB is close, this is white
             if abs(avg_pix[0] - avg_pix[1]) < WHT_BD and abs(avg_pix[1] - avg_pix[2]) < WHT_BD and abs(avg_pix[0] - avg_pix[2]) < WHT_BD:
                 print('(', x, ', ', y, ')', ':', avg_pix, 'WHITE')
                 cube.append(2)
-            else:
+            else: # Else, analyze the hue
                 hue = rgb_to_hue(avg_pix)
-                if hue < 20: # RED 0 - 15
+                if hue < 20:                # RED
                     cube.append(1)
-                elif hue < 35: # ORANGE
+                elif hue < 35:              # ORANGE
                     cube.append(5)
-                elif hue < 60: # YELLOW
+                elif hue < 60:              # YELLOW
                     cube.append(3)
-                elif hue < 115: # GREEN
+                elif hue < 115:             # GREEN
                     cube.append(6)
-                else: # BLUE
+                else:                       # BLUE
                     cube.append(4)
                 print('(', x, ', ', y, ')', ':', avg_pix, rgb_to_hue(avg_pix))
-
     print(cube)
     return cube
 
-
+# Constracts a waveform based on the cube and plays it
 def play_cube(cube):
+
+    # Save the root (center of the cube)
     root = cube[4]
 
+    # Tonic preparation (DEFAULT IS 220.0 Hz for the key of A)
     tonic = 220.0
     tonic = tonic * (2 ** (-5/12))
 
-    pattern = []
-
+    # Constructs a chord form based on the color
+    chord = []
     if root == 1:
-        pattern = [0, 4, 7]
+        chord = [0, 4, 7]
     elif root == 2:
-        pattern = [2, 5, 9]
+        chord = [2, 5, 9]
     elif root == 3:
-        pattern = [4, 7, 11]
+        chord = [4, 7, 11]
     elif root == 4:
-        pattern = [5, 9, 12]
+        chord = [5, 9, 12]
     elif root == 5:
-        pattern = [7, 11, 14]
+        chord = [7, 11, 14]
     else:
-        pattern = [9, 12, 16]
+        chord = [9, 12, 16]
 
+    # Constructs the melody
     melody = []
-
     for i in range(3):
-        for p in range(len(pattern)):
+        for p in range(len(chord)):
+            # Gets the difference in root color and cubelet color
             diff = root - cube[i * 3 + p]
-            note = tonic * (2 ** (((i * 12) + pattern[p] + diff) / 12))
+
+            # Creates a note based on tonic, chord halfsteps, and the difference in root and cubelet
+            note = tonic * (2 ** (((i * 12) + chord[p] + diff) / 12))
+
+            # Appends the notes
             melody.append(note)
             if p == 2:
                 melody.append(note)
@@ -139,7 +146,6 @@ def play_cube(cube):
     print(melody)
 
     # This fixes the melody getting cut off. [DON'T TOUCH]
-
     melody.append(22)
     melody.append(22)
     melody.append(22)
@@ -148,20 +154,21 @@ def play_cube(cube):
     melody.append(22)
     melody.append(22)
     melody.append(22)
-
     # End of melody fix
 
+    # Initialize PyAudio
     PyAudio = pyaudio.PyAudio
     BITRATE = 16000
-    LENGTH = 0.5
-
+    LENGTH = 0.5 # This is the length the notes are played
     NUMBEROFFRAMES = int(BITRATE * LENGTH)
     WAVEDATA = ''
 
+    # Constructs a waveform based on the frequencies, f, in melody
     for f in melody:
         for x in range(NUMBEROFFRAMES):
             WAVEDATA = WAVEDATA+chr(int(math.sin(x/((BITRATE/f)/math.pi))*127+128))
 
+    # Constructs the stream for the waveform and plays it
     p = PyAudio()
     stream = p.open(format = p.get_format_from_width(1),
                     channels = 1,
@@ -173,9 +180,12 @@ def play_cube(cube):
     p.terminate()
 
 
+# Main body of code
 if __name__ == '__main__':
     init_camera_stream()
     run = True
+
+    # Main loop
     while run:
         i = input('Take picutre? [y/n] ')
         if i == 'y':
