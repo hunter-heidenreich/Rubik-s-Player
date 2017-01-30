@@ -1,5 +1,8 @@
 # Rubik's Cube Player
 
+[![Rubik's Cube Player](https://img.youtube.com/vi/KB_6W-52S08/0.jpg)](https://www.youtube.com/watch?v=KB_6W-52S08)
+
+
 What is the Rubik's Cube Player?
 ================================
 
